@@ -24,22 +24,22 @@ once = true
 function onResults(results) {
     console.log(results.poseLandmarks)
 
-//        fetch('/getpose',
-//        {
-//            headers: {
-//                'Accept': 'application/json',
-//                'Content-Type': 'application/json'
-//            },
-//            method: 'POST',
-//            body: JSON.stringify({
-//                    pose_landmarks: results.poseLandmarks,
-//                    width: canvasElement.width,
-//                    height: canvasElement.height
-//                 })
-//        })
-//    .then(function(response) {
-//        console.log(response.json());
-//    })
+        fetch('/getpose',
+        {
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            method: 'POST',
+            body: JSON.stringify({
+                    pose_landmarks: results.poseLandmarks,
+                    width: canvasElement.width,
+                    height: canvasElement.height
+                 })
+        })
+    .then(function(response) {
+        console.log(response.json());
+    })
 
   // Hide the spinner.
   document.body.classList.add('loaded');
