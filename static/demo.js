@@ -3,6 +3,7 @@
 const videoElement = document.getElementsByClassName('input_video')[0];
 const canvasElement = document.getElementsByClassName('output_canvas')[0];
 const controlsElement = document.getElementsByClassName('control-panel')[0];
+const labelElement = document.getElementById('label');
 const canvasCtx = canvasElement.getContext('2d');
 
 // We'll add this to our control panel later, but we'll save it here so we can
@@ -22,9 +23,7 @@ function zColor(data) {
 once = true
 
 function onResults(results) {
-    console.log(results.poseLandmarks)
-
-        fetch('/getpose',
+    fetch('/getpose',
         {
             headers: {
                 'Accept': 'application/json',
@@ -37,8 +36,9 @@ function onResults(results) {
                     height: canvasElement.height
                  })
         })
-    .then(function(response) {
-        console.log(response.json());
+    .then((resp) => resp.json())
+    .then(function(data) {
+        label.innerHTML = JSON.stringify(data);
     })
 
   // Hide the spinner.
