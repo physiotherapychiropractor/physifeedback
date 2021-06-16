@@ -1,6 +1,21 @@
 import csv
 import numpy as np
 import os
+import sys
+#
+# def ROMShoulderPress(pose_landmarks):
+#     if pose_landmarks is not None:
+#         left_elbow=getAngle((pose_landmarks[15,0],pose_landmarks[15,1]),
+#                             (pose_landmarks[13,0],pose_landmarks[13,1]),
+#                             (pose_landmarks[11,0],pose_landmarks[11,1]))
+#         #print(left_elbow)
+#         right_elbow=getAngle((pose_landmarks[16,0],pose_landmarks[16,1]),
+#                              (pose_landmarks[14,0],pose_landmarks[14,1]),
+#                              (pose_landmarks[12,0],pose_landmarks[12,1]))
+#         #print(right_elbow)
+#         #ROM calculation
+#         print("Your range of motion for left elbow is",round(((left_elbow/180)*100)),"%")
+#         print("Your range of motion for right elbow is" ,round(((right_elbow/180)*100)) ,"%")
 
 class RepetitionCounter(object):
     """Counts number of repetitions of given target pose class."""

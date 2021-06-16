@@ -13,35 +13,37 @@
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils@0.3/drawing_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.3.1621277220/pose.js" crossorigin="anonymous"></script>
 </head>
-<body style="background-color:#F2DFD7;">
+<body style="background-color:#fccc7d;">
 <div class="container">
     <div>
-    <div class="card text-white shadow" style="background-color:#D4C1EC;margin-top:1em;">
-        <img class="card-img-top" src="{{url_for('static', filename='logo.svg')}}" />
-        <div class="card-body">
+    <div class="card shadow text-center" style="margin-top:1em;">
+        <img class="card-img-top" width=100 src="{{url_for('static', filename='logo.svg')}}" />
+        <div class="card-body" style="background-color:#d5f3ed;">
             <video hidden class="input_video"></video>
-            <canvas class="output_canvas" width="600px" height="450px"></canvas>
             <div class="loading" hidden>
                 <div class="spinner"></div>
                 <div class="message">Loading</div>
             </div>
-            <select class="form-control" id="pickex" data-style="btn-primary" aria-label="select_exercise">
-                <option value="shoulderpress" selected>Shoulder Press</option>
-                <option value="bridge">Bridge</option>
-                <option value="laterallegraise">Lateral Leg Raise</option>
-                <option value="hamstring">Hamstring Stretch</option>
-                <option value="shoulderflexion">Shoulder Flexion</option>
-            </select>
+            <div style="display:inline-block;">
+                <canvas class="output_canvas" width="960px" height="540px"></canvas>
+                <select class="form-control form-control-lg" id="pickex" data-style="btn-primary" aria-label="select_exercise" style="margin-top:0.5em;">
+                    <option value="shoulderpress" selected>Shoulder Press</option>
+                    <option value="bridge">Bridge</option>
+                    <option value="laterallegraise">Lateral Leg Raise</option>
+                    <option value="hamstring">Hamstring Stretch</option>
+                    <option value="shoulderflexion">Shoulder Flexion</option>
+                </select>
+            </div>
         </div>
     </div>
     <div class="card-group" style="margin-top:1em;margin-bottom:1em;">
-        <div class="card shadow">
+        <div class="card shadow text-center">
             <div class="card-body">
                 <h5 class="card-title">Your position</h5>
                 <p class="card-subtitle" id="label"></p>
             </div>
         </div>
-        <div class="card border-left-info shadow h-100 py-2">
+        <div class="card border-left-info shadow py-2">
             <div class="card-body">
                 <div class="text-xs font-weight-bold text-info text-uppercase"><i class="bi bi-arrows-move"></i>
                     Range of Motion</div>
@@ -64,14 +66,14 @@
                 </div>
             </div>
         </div>
-        <div class="card shadow">
+        <div class="card shadow text-center">
             <div class="card-body">
                 <div class="text-xs font-weight-bold text-info text-uppercase"><i class="bi bi-arrow-repeat"></i>
                     Rep Count</div>
-                <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">3</div>
+                <p class="mb-0 mr-3 font-weight-bold text-gray-800 display-2" id="repcount"></p>
             </div>
         </div>
-        <div class="card shadow">
+        <div class="card shadow text-center">
             <div class="card-body">
                 <div class="text-xs font-weight-bold text-info text-uppercase"><i class="bi bi-stopwatch"></i> Rep time</div>
                 <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">3s</div>

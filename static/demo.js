@@ -4,6 +4,7 @@ const videoElement = document.getElementsByClassName('input_video')[0];
 const canvasElement = document.getElementsByClassName('output_canvas')[0];
 const controlsElement = document.getElementsByClassName('control-panel')[0];
 const labelElement = document.getElementById('label');
+const repCountElement = document.getElementById('repcount');
 const canvasCtx = canvasElement.getContext('2d');
 
 // We'll add this to our control panel later, but we'll save it here so we can
@@ -21,7 +22,7 @@ function zColor(data) {
 }
 
 function onResults(results) {
-    if (frameCounter % 10 === 0) {
+    if (frameCounter % 3 === 0) {
         fetch(fetchString,
             {
                 headers: {
@@ -39,6 +40,7 @@ function onResults(results) {
         .then(function(data) {
             console.log(JSON.stringify(data));
             label.innerHTML = frameCounter + " " + JSON.stringify(data);
+            repCountElement.innerHTML = data['rep'];
         })
     }
 
