@@ -20,26 +20,27 @@ function zColor(data) {
   return 'white';
 }
 
-once = true
-
 function onResults(results) {
-    fetch('/getpose',
-        {
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            method: 'POST',
-            body: JSON.stringify({
-                    pose_landmarks: results.poseLandmarks,
-                    width: canvasElement.width,
-                    height: canvasElement.height
-                 })
+    if (frameCounter % 100 === 0) {
+        fetch(fetchString,
+            {
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                method: 'POST',
+                body: JSON.stringify({
+                        pose_landmarks: results.poseLandmarks,
+                        width: canvasElement.width,
+                        height: canvasElement.height
+                     })
+            })
+        .then((resp) => resp.json())
+        .then(function(data) {
+            console.log(JSON.stringify(data));
+            label.innerHTML = frameCounter + " " + JSON.stringify(data);
         })
-    .then((resp) => resp.json())
-    .then(function(data) {
-        label.innerHTML = JSON.stringify(data);
-    })
+    }
 
   // Hide the spinner.
   document.body.classList.add('loaded');
@@ -73,7 +74,18 @@ function onResults(results) {
           .map(index => results.poseLandmarks[index]),
       {visibilityMin: 0.65, color: zColor, fillColor: 'white'});
   canvasCtx.restore();
+  frameCounter++;
 }
+
+var currentExercise;
+var fetchString = '/getpose?pose=shoulderpress';
+var dropdown = document.getElementById('pickex');
+dropdown.addEventListener('change', (event) => {
+    currentExercise = event.target.value;
+    fetchString = '/getpose?pose=' + event.target.value;
+})
+
+var frameCounter = 0
 
 const pose = new Pose({locateFile: (file) => {
   return `https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.3.1621277220/${file}`;

@@ -424,11 +424,21 @@ class EMADictSmoothing(object):
         return smoothed_data
 
 
-pose_samples_folder = 'model/csv'
+poses = ['bridge', 'hamstring', 'laterallegraise', 'shoulderflexion', 'shoulderpress']
 pose_embedder = FullBodyPoseEmbedder()
 
-model = PoseClassifier(
-    pose_samples_folder=pose_samples_folder,
+models = {}
+
+for pose in poses:
+    model = PoseClassifier(
+        pose_samples_folder='model/csv/' + pose,
+        pose_embedder=pose_embedder,
+        top_n_by_max_distance=30,
+        top_n_by_mean_distance=10)
+    models[pose] = model
+
+models['full_model'] = PoseClassifier(
+    pose_samples_folder='model/csv/all',
     pose_embedder=pose_embedder,
     top_n_by_max_distance=30,
     top_n_by_mean_distance=10)
