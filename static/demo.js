@@ -21,7 +21,7 @@ function zColor(data) {
 }
 
 function onResults(results) {
-    if (frameCounter % 100 === 0) {
+    if (frameCounter % 10 === 0) {
         fetch(fetchString,
             {
                 headers: {

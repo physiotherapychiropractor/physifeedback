@@ -45,7 +45,7 @@ def getpose():
             [[lmk['x'] * json['width'], lmk['y'] * json['height'], lmk['z'] * json['width']]
              for lmk in json['pose_landmarks']],
             dtype=np.float32)
-        pose_classification = smoother(models[pose](pose_landmarks))
+        pose_classification = models[pose](pose_landmarks)
     # print(pose_classification, file=sys.stderr)
     return pose_classification
 
