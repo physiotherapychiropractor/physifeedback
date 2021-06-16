@@ -2,12 +2,12 @@ from flask import Flask, render_template, request
 import json
 import numpy as np
 import sys
-from flask_bootstrap import Bootstrap
+# from flask_bootstrap import Bootstrap
 
-from model.classifier import model, smoother
+from model.classifier import models, smoother
 
 app = Flask(__name__)
-Bootstrap(app)
+# Bootstrap(app)
 
 @app.route('/')
 def hello_world():
@@ -20,17 +20,22 @@ def demo():
 
 @app.route('/getpose', methods=['POST'])
 def getpose():
+    print(request)
     pose_classification = ''
+    if request.args.get('pose'):
+        pose = request.args.get('pose')
+    else:
+        pose = 'full_model'
     if request.method == 'POST':
         json = request.json
         pose_landmarks = np.array(
             [[lmk['x'] * json['width'], lmk['y'] * json['height'], lmk['z'] * json['width']]
              for lmk in json['pose_landmarks']],
             dtype=np.float32)
-        pose_classification = model(pose_landmarks)
+        pose_classification = smoother(models[pose](pose_landmarks))
     # print(pose_classification, file=sys.stderr)
     return pose_classification
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)

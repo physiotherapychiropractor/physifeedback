@@ -1,34 +1,54 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/demo.scss') }}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+<!--    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/demo.scss') }}">-->
     <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
     <script type="text/javascript" src= "{{ url_for('static',filename='demo.js') }}" defer></script>
-
     <meta charset="utf-8">
     <link rel="icon" href="favicon.ico">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils@0.1/control_utils.css" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="demo.css" crossorigin="anonymous">
+<!--    <link rel="stylesheet" type="text/css" href="demo.css" crossorigin="anonymous">-->
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3/camera_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils@0.3/control_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils@0.3/drawing_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.3.1621277220/pose.js" crossorigin="anonymous"></script>
 </head>
 <body>
-<div class="container">
-    <video hidden class="input_video"></video>
-    <canvas class="output_canvas" width="1280px" height="720px"></canvas>
-    <div class="loading">
-      <div class="spinner"></div>
-      <div class="message">
-        Loading
-      </div>
+<div class="container" style="padding:1em;">
+    <div class="row">
+        <div class="col-sm-8 card bg-light mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Your Exercise</h5>
+                <video hidden class="input_video"></video>
+                <canvas class="output_canvas" width="600px" height="450px"></canvas>
+                <div class="loading" hidden>
+                    <div class="spinner"></div>
+                    <div class="message">Loading</div>
+                </div>
+                <select class="form-control" id="pickex" data-style="btn-primary" aria-label="select_exercise">
+                    <option value="shoulderpress" selected>Shoulder Press</option>
+                    <option value="bridge">Bridge</a>
+                    <option value="laterallegraise">Lateral Leg Raise</option>
+                    <option value="hamstring">Hamstring Stretch</option>
+                    <option value="shoulderflexion">Shoulder Flexion</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-sm-4 card text-white bg-info mb-3" style="padding-left:1em;">
+            <div class="card-body">
+                <h5 class="card-title">Your Stats</h5>
+                <div class="card-subtitle" id="label"></div>
+            </div>
+        </div>
     </div>
-  </div>
+</div>
 <div>
-    <h1 id="label"></h1>
 </div>
   <div hidden class="control-panel">
   </div>
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
 </body>
 </html>
