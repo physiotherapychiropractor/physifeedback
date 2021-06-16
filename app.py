@@ -4,10 +4,15 @@ import numpy as np
 import sys
 # from flask_bootstrap import Bootstrap
 
-from model.classifier import models, smoother
+from model.classifier import models, smoother, RepetitionCounter
 
 app = Flask(__name__)
 # Bootstrap(app)
+pose_class = 'shoulderpress'
+repetition_counter = RepetitionCounter(
+    class_name=pose_class,
+    enter_threshold=6,
+    exit_threshold=4)
 
 @app.route('/')
 def hello_world():
@@ -20,10 +25,18 @@ def demo():
 
 @app.route('/getpose', methods=['POST'])
 def getpose():
+    global repetition_counter, pose_class
     print(request)
     pose_classification = ''
     if request.args.get('pose'):
         pose = request.args.get('pose')
+        if pose_class != pose:
+            pose_class = pose
+            repetition_counter = RepetitionCounter(
+                class_name=pose_class,
+                enter_threshold=6,
+                exit_threshold=4
+            )
     else:
         pose = 'full_model'
     if request.method == 'POST':
