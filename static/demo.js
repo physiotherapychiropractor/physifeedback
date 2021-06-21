@@ -3,14 +3,21 @@
 const videoElement = document.getElementsByClassName('input_video')[0];
 const canvasElement = document.getElementsByClassName('output_canvas')[0];
 const controlsElement = document.getElementsByClassName('control-panel')[0];
-const labelElement = document.getElementById('label');
+const messageElement = document.getElementById('message');
 const repCountElement = document.getElementById('repcount');
+const repTimeElement = document.getElementById('reptime');
+const avgRepTimeElement = document.getElementById('avgreptime');
+const leftRomElement = document.getElementById('leftrom');
+const rightRomElement = document.getElementById('rightrom');
+const avgLeftRomElement = document.getElementById('avgleftrom');
+const avgRightRomElement = document.getElementById('avgrightrom');
 const canvasCtx = canvasElement.getContext('2d');
+const loaderElement = document.getElementsByClassName('loader')[0];
+
 
 // We'll add this to our control panel later, but we'll save it here so we can
 // call tick() each time the graph runs.
 const fpsControl = new FPS();
-
 // Optimization: Turn off animated spinner after its hiding animation is done.
 const spinner = document.querySelector('.loading');
 spinner.ontransitionend = () => {
@@ -21,70 +28,109 @@ function zColor(data) {
   return 'white';
 }
 
-function onResults(results) {
-    if (frameCounter % 3 === 0) {
-        fetch(fetchString,
-            {
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                method: 'POST',
-                body: JSON.stringify({
-                        pose_landmarks: results.poseLandmarks,
-                        width: canvasElement.width,
-                        height: canvasElement.height
-                     })
+function getMotivation(repCount) {
+     if (repCount ==1) {
+        return 'Hooray! We\'ve gotten started!'
+     }
+     if (repCount == 5) {
+        return 'You\'re silver!'
+     }
+     if (repCount== 9) {
+        return 'You\'re gold!'
+     }
+     if (repCount > 9) {
+        return 'Good job! Do you want to move onto a different exercise?'
+     }
+     return ''
+}
+
+async function onResults(results) {
+    // Update the frame rate.
+    fpsControl.tick();
+
+    // Draw the overlays.
+    canvasCtx.save();
+    canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+    canvasCtx.drawImage(
+         results.image, 0, 0, canvasElement.width, canvasElement.height);
+//
+//    if (sleep > 0) {
+//        loaderElement.hidden = false;
+//        sleep++;
+//        if (sleep > 20) {
+//            sleep = 0;
+//            loaderElement.hidden = true;
+//        }
+//        console.log('sleep');
+//    }
+//    else {
+        if (frameCounter % 3 === 0) {
+            fetch(fetchString,
+                {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    method: 'POST',
+                    body: JSON.stringify({
+                            pose_landmarks: results.poseLandmarks,
+                            width: canvasElement.width,
+                            height: canvasElement.height
+                         })
+                })
+            .then((resp) => resp.json())
+            .then(function(data) {
+    //            console.log(JSON.stringify(data));
+                repCountElement.innerHTML = data['rep']['count'];
+                repTimeElement.innerHTML = data['rep']['time'];
+                avgRepTimeElement.innerHTML = data['rep']['avg'];
+                leftRomElement.style.width = data['rom']['left'].toString() + '%';
+                leftRomElement.value = data['rom']['left'].toString() + '%';
+                rightRomElement.style.width = data['rom']['right'].toString() + '%';
+                rightRomElement.value = data['rom']['right'].toString() + '%';
+                avgLeftRomElement.innerHTML = data['rom']['avg_left'];
+                avgRightRomElement.innerHTML = data['rom']['avg_right'];
+                var motivation = getMotivation(data['rep']['count']);
+                if (motivation != '') {
+                    messageElement.innerHTML = motivation;
+                }
             })
-        .then((resp) => resp.json())
-        .then(function(data) {
-            console.log(JSON.stringify(data));
-            label.innerHTML = frameCounter + " " + JSON.stringify(data);
-            repCountElement.innerHTML = data['rep'];
-        })
-    }
-
-  // Hide the spinner.
-  document.body.classList.add('loaded');
-
-  // Update the frame rate.
-  fpsControl.tick();
-
-  // Draw the overlays.
-  canvasCtx.save();
-  canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-  canvasCtx.drawImage(
-      results.image, 0, 0, canvasElement.width, canvasElement.height);
-  drawConnectors(
-      canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, {
-        visibilityMin: 0.65,
-        color: 'white'
-      });
-  drawLandmarks(
-      canvasCtx,
-      Object.values(POSE_LANDMARKS_LEFT)
-          .map(index => results.poseLandmarks[index]),
-      {visibilityMin: 0.65, color: zColor, fillColor: 'rgb(255,138,0)'});
-  drawLandmarks(
-      canvasCtx,
-      Object.values(POSE_LANDMARKS_RIGHT)
-          .map(index => results.poseLandmarks[index]),
-      {visibilityMin: 0.65, color: zColor, fillColor: 'rgb(0,217,231)'});
-  drawLandmarks(
-      canvasCtx,
-      Object.values(POSE_LANDMARKS_NEUTRAL)
-          .map(index => results.poseLandmarks[index]),
-      {visibilityMin: 0.65, color: zColor, fillColor: 'white'});
-  canvasCtx.restore();
-  frameCounter++;
+        }
+        if (results.poseLandmarks) {
+              drawConnectors(
+                  canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, {
+                    visibilityMin: 0.65,
+                    color: 'white'
+                  });
+              drawLandmarks(
+                  canvasCtx,
+                  Object.values(POSE_LANDMARKS_LEFT)
+                      .map(index => results.poseLandmarks[index]),
+                  {visibilityMin: 0.65, color: zColor, fillColor: 'rgb(255,138,0)'});
+              drawLandmarks(
+                  canvasCtx,
+                  Object.values(POSE_LANDMARKS_RIGHT)
+                      .map(index => results.poseLandmarks[index]),
+                  {visibilityMin: 0.65, color: zColor, fillColor: 'rgb(0,217,231)'});
+              drawLandmarks(
+                  canvasCtx,
+                  Object.values(POSE_LANDMARKS_NEUTRAL)
+                      .map(index => results.poseLandmarks[index]),
+                  {visibilityMin: 0.65, color: zColor, fillColor: 'white'});
+        }
+        frameCounter++;
+//    }
+    canvasCtx.restore();
 }
 
 var currentExercise;
 var fetchString = '/getpose?pose=shoulderpress';
 var dropdown = document.getElementById('pickex');
+//var sleep = 0
 dropdown.addEventListener('change', (event) => {
     currentExercise = event.target.value;
     fetchString = '/getpose?pose=' + event.target.value;
+//    sleep = 1;
 })
 
 var frameCounter = 0
@@ -101,11 +147,13 @@ const camera = new Camera(videoElement, {
   onFrame: async () => {
     await pose.send({image: videoElement});
   },
-  width: 1280,
-  height: 720
+  width: 960,
+  height: 540
 });
 camera.start();
 
+//console.log(camera)
+//console.log(fpsControl)
 // Present a control panel through which the user can manipulate the solution
 // options.
 new ControlPanel(controlsElement, {
