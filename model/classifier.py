@@ -1,21 +1,134 @@
 import csv
+import math
 import numpy as np
 import os
-import sys
-#
-# def ROMShoulderPress(pose_landmarks):
-#     if pose_landmarks is not None:
-#         left_elbow=getAngle((pose_landmarks[15,0],pose_landmarks[15,1]),
-#                             (pose_landmarks[13,0],pose_landmarks[13,1]),
-#                             (pose_landmarks[11,0],pose_landmarks[11,1]))
-#         #print(left_elbow)
-#         right_elbow=getAngle((pose_landmarks[16,0],pose_landmarks[16,1]),
-#                              (pose_landmarks[14,0],pose_landmarks[14,1]),
-#                              (pose_landmarks[12,0],pose_landmarks[12,1]))
-#         #print(right_elbow)
-#         #ROM calculation
-#         print("Your range of motion for left elbow is",round(((left_elbow/180)*100)),"%")
-#         print("Your range of motion for right elbow is" ,round(((right_elbow/180)*100)) ,"%")
+import time
+
+poses = ['bridge', 'hamstring', 'laterallegraise', 'shoulderflexion', 'shoulderpress']
+
+
+class RangeOfMotion:
+
+    def __init__(self, pose_class_name):
+        self._left = []
+        self._right = []
+        self._pose = pose_class_name
+        self._max_right = []
+        self._max_left = []
+
+    def saveAndGetPercentage(self, left, right, offset, maximum):
+        left_p = min(max(0, round(((left - offset) / maximum) * 100)), 100)
+        right_p = min(max(0, round(((right - offset) / maximum) * 100)), 100)
+        self._left.append(left_p)
+        self._right.append(right_p)
+        return left_p, right_p
+
+    def shoulderPress(self, pose_landmarks):
+        left_elbow = self.getAngle((pose_landmarks[15, 0], pose_landmarks[15, 1]),
+                                   (pose_landmarks[13, 0], pose_landmarks[13, 1]),
+                                   (pose_landmarks[11, 0], pose_landmarks[11, 1]))
+        right_elbow = self.getAngle((pose_landmarks[16, 0], pose_landmarks[16, 1]),
+                                    (pose_landmarks[14, 0], pose_landmarks[14, 1]),
+                                    (pose_landmarks[12, 0], pose_landmarks[12, 1]))
+        return self.saveAndGetPercentage(left_elbow, right_elbow, 90, 90)
+
+    def hamstring(self, pose_landmarks):
+        right_knee = self.getAngle((pose_landmarks[24, 0], pose_landmarks[24, 1]),
+                                   (pose_landmarks[26, 0], pose_landmarks[26, 1]),
+                                   (pose_landmarks[28, 0], pose_landmarks[28, 1]))
+        left_knee = self.getAngle((pose_landmarks[23, 0], pose_landmarks[23, 1]),
+                                  (pose_landmarks[25, 0], pose_landmarks[25, 1]),
+                                  (pose_landmarks[27, 0], pose_landmarks[27, 1]))
+        return self.saveAndGetPercentage(left_knee, right_knee, 90, 90)
+
+    def shoulderFlexion(self, pose_landmarks):
+        right_shoulder = self.getAngle((pose_landmarks[16, 0], pose_landmarks[16, 1]),
+                                       (pose_landmarks[12, 0], pose_landmarks[12, 1]),
+                                       (pose_landmarks[24, 0], pose_landmarks[24, 1]))
+        left_shoulder = self.getAngle((pose_landmarks[15, 0], pose_landmarks[15, 1]),
+                                      (pose_landmarks[11, 0], pose_landmarks[11, 1]),
+                                      (pose_landmarks[23, 0], pose_landmarks[23, 1]))
+        leftshoulder_ROMint = round(((left_shoulder / 180) * 100))
+        self._left.append(leftshoulder_ROMint)
+        return self.saveAndGetPercentage(left_shoulder, right_shoulder, 0, 180)
+
+    def lateralLegRaise(self, pose_landmarks):
+        right_hip = self.getAngle((pose_landmarks[23, 0], pose_landmarks[23, 1]),
+                                  (pose_landmarks[24, 0], pose_landmarks[24, 1]),
+                                  (pose_landmarks[28, 0], pose_landmarks[28, 1]))
+        left_hip = self.getAngle((pose_landmarks[24, 0], pose_landmarks[24, 1]),
+                                 (pose_landmarks[23, 0], pose_landmarks[23, 1]),
+                                 (pose_landmarks[27, 0], pose_landmarks[27, 1]))
+        return self.saveAndGetPercentage(left_hip, right_hip, 90, 60)
+
+    def bridge(self, pose_landmarks):
+        right_hip = self.getAngle((pose_landmarks[12, 0], pose_landmarks[12, 1]),
+                                  (pose_landmarks[24, 0], pose_landmarks[24, 1]),
+                                  (pose_landmarks[26, 0], pose_landmarks[26, 1]))
+        left_hip = self.getAngle((pose_landmarks[11, 0], pose_landmarks[11, 1]),
+                                 (pose_landmarks[23, 0], pose_landmarks[23, 1]),
+                                 (pose_landmarks[25, 0], pose_landmarks[25, 1]))
+        return self.saveAndGetPercentage(left_hip, right_hip, 120, 60)
+
+    def getAngle(self, firstPoint, midPoint, lastPoint):
+        firstPointX, firstPointY = firstPoint
+        midPointX, midPointY = midPoint
+        lastPointX, lastPointY = lastPoint
+        result = math.degrees(math.atan2(lastPointY - midPointY,
+                                         lastPointX - midPointX)
+                              - math.atan2(firstPointY - midPointY,
+                                           firstPointX - midPointX))
+        result = np.abs(result)
+        if result > 180:
+            result = 360.0 - result
+        return result
+
+    _rom = {
+        'bridge': bridge,
+        'hamstring': hamstring,
+        'laterallegraise': lateralLegRaise,
+        'shoulderflexion': shoulderFlexion,
+        'shoulderpress': shoulderPress,
+    }
+
+    def rom(self, pose_landmarks, prev_rep_count, curr_rep_count):
+        if curr_rep_count == prev_rep_count + 1:
+            self._max_right.append(max(self._right))
+            self._max_left.append(max(self._left))
+            self._left = []
+            self._right = []
+        return self._rom[self._pose](self, pose_landmarks)
+
+    def avgROM(self):
+        if len(self._max_left) == 0 or len(self._max_right) == 0:
+            return None, None
+        left = str(round(sum(self._max_left) / len(self._max_left))) + '%'
+        right = str(round(sum(self._max_right) / len(self._max_right))) + '%'
+        return left, right
+
+
+class RepTimer:
+    def __init__(self):
+        self._start_time = 0
+        self._current_time = 0
+        self._history = []
+        self._elapsed_time = 0
+
+    def average(self):
+        if len(self._history) > 0:
+            return str(round(sum(self._history) / len(self._history), 2)) + 's'
+        return None
+
+    def __call__(self, prev_repetition_count, repetitions_count):
+        self._current_time = time.time()
+        if repetitions_count == 0:
+            return None
+        if repetitions_count == prev_repetition_count + 1:
+            self._history.append(self._elapsed_time)
+            self._start_time = self._current_time
+        self._elapsed_time = round(self._current_time - self._start_time)
+        return str(self._elapsed_time) + 's'
+
 
 class RepetitionCounter(object):
     """Counts number of repetitions of given target pose class."""
@@ -63,6 +176,7 @@ class RepetitionCounter(object):
 
         # On the very first frame or if we were out of the pose, just check if we
         # entered it on this frame and update the state.
+
         if not self._pose_entered:
             self._pose_entered = pose_confidence > self._enter_threshold
             return self._n_repeats
@@ -74,6 +188,7 @@ class RepetitionCounter(object):
             self._pose_entered = False
 
         return self._n_repeats
+
 
 class FullBodyPoseEmbedder(object):
     """Converts 3D pose landmarks into 3D embedding."""
@@ -497,7 +612,6 @@ class EMADictSmoothing(object):
         return smoothed_data
 
 
-poses = ['bridge', 'hamstring', 'laterallegraise', 'shoulderflexion', 'shoulderpress']
 pose_embedder = FullBodyPoseEmbedder()
 
 models = {}
