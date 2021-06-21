@@ -17,11 +17,6 @@ rom = RangeOfMotion(pose_class)
 
 
 @app.route('/')
-def home():
-    return render_template('home.html')
-
-
-@app.route('/physifeedback')
 def physifeedback():
     return render_template('demo.html')
 
