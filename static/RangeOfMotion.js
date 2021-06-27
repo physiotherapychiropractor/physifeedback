@@ -102,7 +102,7 @@ export class RangeOfMotion {
 
     avgROM() {
         if (this._max_left.length == 0 || this._max_right.length == 0) {
-            return;
+            return ['', ''];
         }
         var left = Math.round(this._max_left.reduce((a, b) => a + b, 0) / this._max_left.length) + '%';
         var right = Math.round(this._max_right.reduce((a, b) => a + b, 0) / this._max_right.length) + '%';

@@ -50,8 +50,6 @@ function getMotivation(repCount) {
      return ''
 }
 
-var prev_count, curr_count, left, right, avg_left, avg_right, time, avg_time;
-
 async function onResults(results) {
     // Update the frame rate.
     fpsControl.tick();
@@ -88,6 +86,7 @@ async function onResults(results) {
                 })
             .then((resp) => resp.json())
             .then(function(data) {
+              var prev_count, curr_count, left, right, avg_left, avg_right, time, avg_time;
 
               prev_count = repCounter.n_repeats;
               if (data['pose']) {
@@ -106,8 +105,8 @@ async function onResults(results) {
               [left, right] = rom1;
               [avg_left, avg_right] = avg_rom1;
 
-              console.log('rom: ' + rom1);
-              console.log('avg rom: ' + avg_rom1);
+              // console.log('rom: ' + rom1);
+              // console.log('avg rom: ' + avg_rom1);
 
                 repCountElement.innerHTML = curr_count;
                 repTimeElement.innerHTML = time;
@@ -165,6 +164,8 @@ dropdown.addEventListener('change', (event) => {
     repTimer = new RepTimer();
     rom = new RangeOfMotion(currentExercise);
     repCounter = new RepetitionCounter(currentExercise + '_up');
+    // var prev_count, curr_count, left, right, avg_left, avg_right, time, avg_time;
+    // prev_count, curr_count, left, right, avg_left, avg_right
 //    sleep = 1;
 })
 
