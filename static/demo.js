@@ -1,3 +1,7 @@
+import { RangeOfMotion } from './RangeOfMotion.js';
+import { RepTimer } from './RepTimer.js';
+import { RepetitionCounter } from './RepetitionCounter.js';
+
 
 // Our input frames will come from here.
 const videoElement = document.getElementsByClassName('input_video')[0];
@@ -9,6 +13,8 @@ const repTimeElement = document.getElementById('reptime');
 const avgRepTimeElement = document.getElementById('avgreptime');
 const leftRomElement = document.getElementById('leftrom');
 const rightRomElement = document.getElementById('rightrom');
+const leftRom2Element = document.getElementById('leftrom2');
+const rightRom2Element = document.getElementById('rightrom2');
 const avgLeftRomElement = document.getElementById('avgleftrom');
 const avgRightRomElement = document.getElementById('avgrightrom');
 const canvasCtx = canvasElement.getContext('2d');
@@ -43,6 +49,8 @@ function getMotivation(repCount) {
      }
      return ''
 }
+
+var prev_count, curr_count, left, right, avg_left, avg_right, time, avg_time;
 
 async function onResults(results) {
     // Update the frame rate.
@@ -80,17 +88,37 @@ async function onResults(results) {
                 })
             .then((resp) => resp.json())
             .then(function(data) {
-    //            console.log(JSON.stringify(data));
-                repCountElement.innerHTML = data['rep']['count'];
-                repTimeElement.innerHTML = data['rep']['time'];
-                avgRepTimeElement.innerHTML = data['rep']['avg'];
-                leftRomElement.style.width = data['rom']['left'].toString() + '%';
-                leftRomElement.value = data['rom']['left'].toString() + '%';
-                rightRomElement.style.width = data['rom']['right'].toString() + '%';
-                rightRomElement.value = data['rom']['right'].toString() + '%';
-                avgLeftRomElement.innerHTML = data['rom']['avg_left'];
-                avgRightRomElement.innerHTML = data['rom']['avg_right'];
-                var motivation = getMotivation(data['rep']['count']);
+
+              prev_count = repCounter.n_repeats;
+              if (data['pose']) {
+                curr_count = repCounter.repetitionCounter(data['pose']);
+              } else {
+                curr_count = prev_count;
+              }
+
+              time = repTimer.repTimer(prev_count, curr_count);
+              avg_time = repTimer.average();
+
+
+              var rom1 = rom.rom(data['landmarks'], prev_count, curr_count);
+              var avg_rom1 = rom.avgROM();
+
+              [left, right] = rom1;
+              [avg_left, avg_right] = avg_rom1;
+
+              console.log('rom: ' + rom1);
+              console.log('avg rom: ' + avg_rom1);
+
+                repCountElement.innerHTML = curr_count;
+                repTimeElement.innerHTML = time;
+                avgRepTimeElement.innerHTML = avg_time;
+                leftRomElement.style.width = left + '%';
+                leftRom2Element.innerHTML = left + '%';
+                rightRomElement.style.width = right + '%';
+                rightRom2Element.innerHTML = right + '%';
+                avgLeftRomElement.innerHTML = avg_left;
+                avgRightRomElement.innerHTML = avg_right;
+                var motivation = getMotivation(curr_count);
                 if (motivation != '') {
                     messageElement.innerHTML = motivation;
                 }
@@ -122,14 +150,21 @@ async function onResults(results) {
 //    }
     canvasCtx.restore();
 }
+var currentExercise = 'shoulderpress';
+var fetchString = '/getpose?pose=' + currentExercise;
 
-var currentExercise;
-var fetchString = '/getpose?pose=shoulderpress';
+var repTimer = new RepTimer();
+var rom = new RangeOfMotion(currentExercise);
+var repCounter = new RepetitionCounter(currentExercise + '_up');
+
 var dropdown = document.getElementById('pickex');
 //var sleep = 0
 dropdown.addEventListener('change', (event) => {
     currentExercise = event.target.value;
     fetchString = '/getpose?pose=' + event.target.value;
+    repTimer = new RepTimer();
+    rom = new RangeOfMotion(currentExercise);
+    repCounter = new RepetitionCounter(currentExercise + '_up');
 //    sleep = 1;
 })
 
