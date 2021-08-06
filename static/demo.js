@@ -19,16 +19,16 @@ const avgLeftRomElement = document.getElementById('avgleftrom');
 const avgRightRomElement = document.getElementById('avgrightrom');
 const canvasCtx = canvasElement.getContext('2d');
 const loaderElement = document.getElementsByClassName('loader')[0];
-
+const tutorialVideoElement = document.getElementById('video');
 
 // We'll add this to our control panel later, but we'll save it here so we can
 // call tick() each time the graph runs.
 const fpsControl = new FPS();
 // Optimization: Turn off animated spinner after its hiding animation is done.
-const spinner = document.querySelector('.loading');
-spinner.ontransitionend = () => {
-  spinner.style.display = 'none';
-};
+// const spinner = document.querySelector('.loading');
+// spinner.ontransitionend = () => {
+//   spinner.style.display = 'none';
+// };
 
 function zColor(data) {
   return 'white';
@@ -59,18 +59,18 @@ async function onResults(results) {
     canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
     canvasCtx.drawImage(
          results.image, 0, 0, canvasElement.width, canvasElement.height);
-//
-//    if (sleep > 0) {
-//        loaderElement.hidden = false;
-//        sleep++;
-//        if (sleep > 20) {
-//            sleep = 0;
-//            loaderElement.hidden = true;
-//        }
-//        console.log('sleep');
-//    }
-//    else {
-        if (frameCounter % 3 === 0) {
+
+   if (sleep > 0) {
+       loaderElement.hidden = false;
+       sleep++;
+       if (sleep > 10) {
+           sleep = 0;
+           loaderElement.hidden = true;
+       }
+       console.log('sleep');
+   }
+   else {
+        if (frameCounter % 100 === 0) {
             fetch(fetchString,
                 {
                     headers: {
@@ -97,7 +97,6 @@ async function onResults(results) {
 
               time = repTimer.repTimer(prev_count, curr_count);
               avg_time = repTimer.average();
-
 
               var rom1 = rom.rom(data['landmarks'], prev_count, curr_count);
               var avg_rom1 = rom.avgROM();
@@ -146,7 +145,7 @@ async function onResults(results) {
                   {visibilityMin: 0.65, color: zColor, fillColor: 'white'});
         }
         frameCounter++;
-//    }
+   }
     canvasCtx.restore();
 }
 var currentExercise = 'shoulderpress';
@@ -156,20 +155,31 @@ var repTimer = new RepTimer();
 var rom = new RangeOfMotion(currentExercise);
 var repCounter = new RepetitionCounter(currentExercise + '_up');
 
+var map = {
+  'shoulderpress': 'https://www.youtube.com/embed/Bp3drI8ou98',
+  'shoulderflexion': 'https://www.youtube.com/embed/NF1uwqc9VwU',
+  'bridge': 'https://www.youtube.com/embed/l87SOtYxEec',
+  'laterallegraise': 'https://www.youtube.com/embed/fNAu_PZfgsk',
+  'hamstring': 'https://www.youtube.com/embed/-87ioKS6ulY',
+};
+
+tutorialVideoElement.src = map[currentExercise];
+
 var dropdown = document.getElementById('pickex');
-//var sleep = 0
+var sleep = 1
 dropdown.addEventListener('change', (event) => {
     currentExercise = event.target.value;
     fetchString = '/getpose?pose=' + event.target.value;
     repTimer = new RepTimer();
     rom = new RangeOfMotion(currentExercise);
     repCounter = new RepetitionCounter(currentExercise + '_up');
+    tutorialVideoElement.src = map[currentExercise];
     // var prev_count, curr_count, left, right, avg_left, avg_right, time, avg_time;
     // prev_count, curr_count, left, right, avg_left, avg_right
-//    sleep = 1;
+   sleep = 1;
 })
 
-var frameCounter = 0
+var frameCounter = 0;
 
 const pose = new Pose({locateFile: (file) => {
   return `https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.3.1621277220/${file}`;
@@ -183,8 +193,8 @@ const camera = new Camera(videoElement, {
   onFrame: async () => {
     await pose.send({image: videoElement});
   },
-  width: 960,
-  height: 540
+  // width: 960,
+  // height: 540
 });
 camera.start();
 
@@ -226,3 +236,17 @@ new ControlPanel(controlsElement, {
       videoElement.classList.toggle('selfie', options.selfieMode);
       pose.setOptions(options);
     });
+
+    
+    var resizeCanvas = function() {
+      canvasElement.width = canvasElement.parentElement.clientWidth;
+      canvasElement.height = 3 * canvasElement.width / 4;
+
+      tutorialVideoElement.width = tutorialVideoElement.parentElement.clientWidth*0.85;
+      tutorialVideoElement.height = 9 * tutorialVideoElement.width / 16;
+    };
+
+  window.addEventListener('resize', resizeCanvas, true);
+
+  resizeCanvas();
+  
