@@ -34,104 +34,105 @@
 </head>
 <body style="background-color:#fccc7d;">
 <div class="container">
-    <div>
-    <div class="card shadow text-center" style="margin-top:1em;">
-        <img class="card-img-top" width=100 src="{{url_for('static', filename='logo.svg')}}" />
-        <div class="card-body" style="background-color:#d5f3ed;">
-            <video class="input_video" height="540px" width="960px" hidden></video>
-            <div class="loading" hidden>
-
-                <div class="spinner"></div>
-                <div class="message">Loading</div>
-            </div>
-            <div style="display:inline-block;">
-                <div>
-<!--                    <div class="loader" hidden></div>-->
-                    <canvas class="output_canvas" width="960px" height="540px"></canvas>
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow text-center" style="margin-top:1em;">
+                <img class="card-img-top" width=100 src="{{url_for('static', filename='logo.svg')}}" />
+                <div class="card-body" style="background-color:#d5f3ed;">
+                    <video class="input_video" hidden></video>
+                    <!-- <div class="loading"> -->
+                        <!-- <div class="spinner"></div> -->
+                        <!-- <div class="message">Loading</div> -->
+                    <!-- </div> -->
+                    <div id="canvas_div"> 
+                        <div class="loader"></div>
+                        <canvas class="output_canvas"></canvas>
+                    </div>
+                    <select class="form-control form-control-lg" id="pickex" data-style="btn-primary" aria-label="select_exercise" style="margin-top:0.5em;">
+                        <option value="shoulderpress" selected>Shoulder Press</option>
+                        <option value="shoulderflexion">Shoulder Flexion</option>
+                        <option value="bridge">Bridge</option>
+                        <option value="laterallegraise">Lateral Leg Raise</option>
+                        <option value="hamstring">Hamstring Stretch</option>
+                    </select>
                 </div>
-                <select class="form-control form-control-lg" id="pickex" data-style="btn-primary" aria-label="select_exercise" style="margin-top:0.5em;">
-                    <option value="shoulderpress" selected>Shoulder Press</option>
-                    <option value="shoulderflexion">Shoulder Flexion</option>
-                    <option value="bridge">Bridge</option>
-                    <option value="laterallegraise">Lateral Leg Raise</option>
-                    <option value="hamstring">Hamstring Stretch</option>
-                </select>
+            </div>
+            <div class="card" style="margin-top:1em;margin-bottom:1em;">
+                <p class="card-subtitle" style="padding:1.5em;" id="message">
+                This is a beta. It works best on Chrome and using HTTPS (not HTTP). <br>Make sure you give browser permission to use your camera and that you don't have another application running that uses your camera while using this app. Client-side storage has not yet been setup so if you find the metrics are not accurate, try again in a few minutes as someone else may be using it.
+                    Any questions and concerns can be sent to <a href="mailto:physifeedback@hadiya.ca">physifeedback@hadiya.ca</a>. Enjoy! <br> (c) Physifeedback 2021.
+    
+                </p>
             </div>
         </div>
-    </div>
-    <div class="card-group" style="margin-top:1em;margin-bottom:1em;">
-        <div class="card shadow text-center">
-            <div class="card-body align-items-center">
-                <div class="text-xs font-weight-bold text-info text-uppercase"><i class="bi bi-heart"></i>
-                    Motivation</div>
-                <p class="card-subtitle" style="padding:1.5em;" id="message">Welcome to Physifeedback!</p>
-            </div>
-        </div>
-        <div class="card shadow text-center">
-            <div class="card-body">
-                <div class="text-xs font-weight-bold text-info text-uppercase"><i class="bi bi-arrows-move"></i>
-                    Range of Motion</div>
-                <div class = "row no-gutters">
-                    <div class="text-uppercase font-weight-bold d-inline-block w-50">Left</div>
-                    <div class="d-inline-block w-50">Average: <span id="avgleftrom"></span></div>
+        <div class="col-md-4" style="margin-top:1em;margin-bottom:1em;">
+            <div class="card shadow text-center">
+                <div class="card-body align-items-center">
+                    <div class="text-xs font-weight-bold text-info text-uppercase"><i class="bi bi-heart"></i>
+                        Motivation</div>
+                    <p class="card-subtitle" style="padding:1.5em;" id="message">Welcome to Physifeedback!</p>
+                    <iframe id="video" allowfullscreen></iframe>
                 </div>
-                <div class = "row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col-auto">
-                                <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800" id="leftrom2">%</div>
+            </div>
+            <div class="card shadow text-center">
+                <div class="card-body">
+                    <div class="text-xs font-weight-bold text-info text-uppercase"><i class="bi bi-arrows-move"></i>
+                        Range of Motion</div>
+                    <div class = "row no-gutters">
+                        <div class="text-uppercase font-weight-bold d-inline-block w-50">Left</div>
+                        <div class="d-inline-block w-50">Average: <span id="avgleftrom"></span></div>
+                    </div>
+                    <div class = "row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col-auto">
+                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800" id="leftrom2">%</div>
+                                </div>
+                                <div class="col">
+                                    <div class="progress progress-sm mr-2">
+                                        <div class="progress-bar bg-info" role="progressbar" aria-valuemin="0" aria-valuemax="100" id="leftrom"></div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col">
-                                <div class="progress progress-sm mr-2">
-                                    <div class="progress-bar bg-info" role="progressbar" aria-valuemin="0" aria-valuemax="100" id="leftrom"></div>
+                        </div>
+                    </div>
+                    <div class = "row no-gutters">
+                        <div class="text-uppercase font-weight-bold d-inline-block w-50">Right</div>
+                        <div class="d-inline-block w-50">Average: <span id="avgrightrom"></span></div>
+                    </div>
+                    <div class = "row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col-auto">
+                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800" id="rightrom2">%</div>
+                                </div>
+                                <div class="col">
+                                    <div class="progress progress-sm mr-2">
+                                        <div class="progress-bar bg-info" role="progressbar" aria-valuemin="0" aria-valuemax="100" id="rightrom"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class = "row no-gutters">
-                    <div class="text-uppercase font-weight-bold d-inline-block w-50">Right</div>
-                    <div class="d-inline-block w-50">Average: <span id="avgrightrom"></span></div>
+            </div>
+            <div class="card shadow text-center">
+                <div class="card-body">
+                    <div class="text-xs font-weight-bold text-info text-uppercase"><i class="bi bi-arrow-repeat"></i>
+                        Rep Count</div>
+                    <p class="mb-0 mr-3 font-weight-bold text-gray-800 display-2" id="repcount">0</p>
                 </div>
-                <div class = "row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col-auto">
-                                <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800" id="rightrom2">%</div>
-                            </div>
-                            <div class="col">
-                                <div class="progress progress-sm mr-2">
-                                    <div class="progress-bar bg-info" role="progressbar" aria-valuemin="0" aria-valuemax="100" id="rightrom"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+            </div>
+            <div class="card shadow text-center">
+                <div class="card-body">
+                    <div class="text-xs font-weight-bold text-info text-uppercase"><i class="bi bi-stopwatch"></i> Rep time</div>
+                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800 display-4" id="reptime">0s</div>
+                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">Average: <span id="avgreptime">0s</span></div>
                 </div>
             </div>
         </div>
-        <div class="card shadow text-center">
-            <div class="card-body">
-                <div class="text-xs font-weight-bold text-info text-uppercase"><i class="bi bi-arrow-repeat"></i>
-                    Rep Count</div>
-                <p class="mb-0 mr-3 font-weight-bold text-gray-800 display-2" id="repcount">0</p>
-            </div>
-        </div>
-        <div class="card shadow text-center">
-            <div class="card-body">
-                <div class="text-xs font-weight-bold text-info text-uppercase"><i class="bi bi-stopwatch"></i> Rep time</div>
-                <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800 display-4" id="reptime">0s</div>
-                <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">Average: <span id="avgreptime">0s</span></div>
-            </div>
-        </div>
+    
     </div>
-        <div class="card" style="margin-top:1em;margin-bottom:1em;">
-            <p class="card-subtitle" style="padding:1.5em;" id="message">
-            This is a beta. It works best on Chrome and using HTTPS (not HTTP). <br>Make sure you give browser permission to use your camera and that you don't have another application running that uses your camera while using this app. Client-side storage has not yet been setup so if you find the metrics are not accurate, try again in a few minutes as someone else may be using it.
-                Any questions and concerns can be sent to <a href="mailto:physifeedback@hadiya.ca">physifeedback@hadiya.ca</a>. Enjoy! <br> (c) Physifeedback 2021.
-
-            </p>
-        </div>
-</div>
 <div>
 </div>
   <div hidden class="control-panel">
