@@ -70,7 +70,7 @@ async function onResults(results) {
        console.log('sleep');
    }
    else {
-        if (frameCounter % 100 === 0) {
+        if (frameCounter % 3 === 0) {
             fetch(fetchString,
                 {
                     headers: {
