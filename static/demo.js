@@ -36,7 +36,7 @@ function zColor(data) {
 
 function getMotivation(repCount) {
      if (repCount == 0) {
-       return 'Let\'s get started! Here's a demonstration of your chosen exercise:'
+       return 'Let\'s get started! Here\'s a demonstration of your chosen exercise:'
      }
      if (repCount ==1) {
         return 'Hooray! We\'ve gotten started!'
