@@ -181,21 +181,25 @@ var currentReps, currentSets;
 var sleep = 1;
 submitExerciseButton.addEventListener('click', () => {
     if (submitExerciseButton.innerText === "Start") {
-        var currentExercise = exs.value;
-        currentReps = reps.value;
-        currentSets = sets.value;
-        fetchString = '/getpose?pose=' + currentExercise;
-        repTimer = new RepTimer();
-        rom = new RangeOfMotion(currentExercise);
-        repCounter = new RepetitionCounter(currentExercise + '_up');
-        tutorialVideoElement.src = map[currentExercise];
-        // var prev_count, curr_count, left, right, avg_left, avg_right, time, avg_time;
-        // prev_count, curr_count, left, right, avg_left, avg_right
-        sleep = 1;
-        submitExerciseButton.innerText = "Stop";
-        reps.disabled = true;
-        sets.disabled = true;
-        exs.disabled = true;
+        if (exs.value === '0' || reps.value === '0' || sets.value === '0') {
+            alert("Exercise type, rep goal, and set goal must be set before exercise can start.");
+        } else {
+            var currentExercise = exs.value;
+            currentReps = reps.value;
+            currentSets = sets.value;
+            fetchString = '/getpose?pose=' + currentExercise;
+            repTimer = new RepTimer();
+            rom = new RangeOfMotion(currentExercise);
+            repCounter = new RepetitionCounter(currentExercise + '_up');
+            tutorialVideoElement.src = map[currentExercise];
+            // var prev_count, curr_count, left, right, avg_left, avg_right, time, avg_time;
+            // prev_count, curr_count, left, right, avg_left, avg_right
+            sleep = 1;
+            submitExerciseButton.innerText = "Stop";
+            reps.disabled = true;
+            sets.disabled = true;
+            exs.disabled = true;
+        }
     } else {
         stopExercise();
     }
