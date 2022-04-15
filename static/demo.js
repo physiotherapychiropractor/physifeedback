@@ -9,6 +9,7 @@ const canvasElement = document.getElementsByClassName('output_canvas')[0];
 const controlsElement = document.getElementsByClassName('control-panel')[0];
 const messageElement = document.getElementById('message');
 const repCountElement = document.getElementById('repcount');
+const setCountElement = document.getElementById('setcount');
 const repTimeElement = document.getElementById('reptime');
 const avgRepTimeElement = document.getElementById('avgreptime');
 const leftRomElement = document.getElementById('leftrom');
@@ -70,7 +71,7 @@ async function onResults(results) {
        console.log('sleep');
    }
    else {
-        if (frameCounter % 100 === 0) {
+       if (frameCounter % 3 === 0 && reps.disabled) {
             fetch(fetchString,
                 {
                     headers: {
@@ -86,15 +87,19 @@ async function onResults(results) {
                 })
             .then((resp) => resp.json())
             .then(function(data) {
-              var prev_count, curr_count, left, right, avg_left, avg_right, time, avg_time;
+              var prev_count, curr_count, left, right, avg_left, avg_right, time, avg_time, new_count;
 
               prev_count = repCounter.n_repeats;
-              if (data['pose']) {
-                curr_count = repCounter.repetitionCounter(data['pose']);
+              prev_count = (prev_count % currentReps === 0 && prev_count !== 0) ? currentReps : (prev_count % currentReps);
+                if (data['pose']) {
+                  new_count = repCounter.repetitionCounter(data['pose']);
+                  if (new_count === currentReps*currentSets) {
+                      stopExercise();
+                  }
+                  curr_count = (new_count % currentReps === 0 && new_count !== 0) ? currentReps : (new_count % currentReps);
               } else {
-                curr_count = prev_count;
+                  curr_count = prev_count;
               }
-
               time = repTimer.repTimer(prev_count, curr_count);
               avg_time = repTimer.average();
 
@@ -106,7 +111,7 @@ async function onResults(results) {
 
               // console.log('rom: ' + rom1);
               // console.log('avg rom: ' + avg_rom1);
-
+                setCountElement.innerHTML = (curr_count === currentReps ? Math.floor((new_count - 1) / currentReps) :  Math.floor(new_count / currentReps)) + 1 + "";
                 repCountElement.innerHTML = curr_count;
                 repTimeElement.innerHTML = time;
                 avgRepTimeElement.innerHTML = avg_time;
@@ -116,10 +121,10 @@ async function onResults(results) {
                 rightRom2Element.innerHTML = right + '%';
                 avgLeftRomElement.innerHTML = avg_left;
                 avgRightRomElement.innerHTML = avg_right;
-                var motivation = getMotivation(curr_count);
-                if (motivation != '') {
-                    messageElement.innerHTML = motivation;
-                }
+                // var motivation = getMotivation(curr_count);
+                // if (motivation != '') {
+                //     messageElement.innerHTML = motivation;
+                // }
             })
         }
         if (results.poseLandmarks) {
@@ -148,13 +153,6 @@ async function onResults(results) {
    }
     canvasCtx.restore();
 }
-var currentExercise = 'shoulderpress';
-var fetchString = '/getpose?pose=' + currentExercise;
-
-var repTimer = new RepTimer();
-var rom = new RangeOfMotion(currentExercise);
-var repCounter = new RepetitionCounter(currentExercise + '_up');
-
 var map = {
   'shoulderpress': 'https://www.youtube.com/embed/Bp3drI8ou98',
   'shoulderflexion': 'https://www.youtube.com/embed/NF1uwqc9VwU',
@@ -163,21 +161,50 @@ var map = {
   'hamstring': 'https://www.youtube.com/embed/-87ioKS6ulY',
 };
 
-tutorialVideoElement.src = map[currentExercise];
+// tutorialVideoElement.src = map[currentExercise];
+var fetchString, repTimer, rom, repCounter;
+// var fetchString = '/getpose?pose=' + currentExercise;
+//
+// var repTimer = new RepTimer();
+// var rom = new RangeOfMotion(currentExercise);
+// var repCounter = new RepetitionCounter(currentExercise + '_up');
 
-var dropdown = document.getElementById('pickex');
-var sleep = 1
-dropdown.addEventListener('change', (event) => {
-    currentExercise = event.target.value;
-    fetchString = '/getpose?pose=' + event.target.value;
-    repTimer = new RepTimer();
-    rom = new RangeOfMotion(currentExercise);
-    repCounter = new RepetitionCounter(currentExercise + '_up');
-    tutorialVideoElement.src = map[currentExercise];
-    // var prev_count, curr_count, left, right, avg_left, avg_right, time, avg_time;
-    // prev_count, curr_count, left, right, avg_left, avg_right
-   sleep = 1;
-})
+const submitExerciseButton = document.getElementById('submitExerciseButton');
+const reps = document.getElementById('pickreps');
+const sets = document.getElementById('picksets');
+const exs = document.getElementById('pickex');
+
+var currentReps, currentSets;
+var sleep = 1;
+submitExerciseButton.addEventListener('click', () => {
+    if (submitExerciseButton.innerText === "Start") {
+        var currentExercise = exs.value;
+        currentReps = reps.value;
+        currentSets = sets.value;
+        fetchString = '/getpose?pose=' + currentExercise;
+        repTimer = new RepTimer();
+        rom = new RangeOfMotion(currentExercise);
+        repCounter = new RepetitionCounter(currentExercise + '_up');
+        tutorialVideoElement.src = map[currentExercise];
+        // var prev_count, curr_count, left, right, avg_left, avg_right, time, avg_time;
+        // prev_count, curr_count, left, right, avg_left, avg_right
+        sleep = 1;
+        submitExerciseButton.innerText = "Stop";
+        reps.disabled = true;
+        sets.disabled = true;
+        exs.disabled = true;
+    } else {
+        stopExercise();
+    }
+});
+
+
+function stopExercise() {
+    submitExerciseButton.innerText = "Start";
+    reps.disabled = false;
+    exs.disabled = false;
+    sets.disabled = false;
+}
 
 var frameCounter = 0;
 

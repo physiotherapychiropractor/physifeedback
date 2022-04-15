@@ -49,12 +49,29 @@
                         <canvas class="output_canvas"></canvas>
                     </div>
                     <select class="form-control form-control-lg" id="pickex" data-style="btn-primary" aria-label="select_exercise" style="margin-top:0.5em;">
-                        <option value="shoulderpress" selected>Shoulder Press</option>
+                        <option selected disabled>Pick an exercise</option>
+                        <option value="shoulderpress">Shoulder Press</option>
                         <option value="shoulderflexion">Shoulder Flexion</option>
                         <option value="bridge">Bridge</option>
                         <option value="laterallegraise">Lateral Leg Raise</option>
                         <option value="hamstring">Hamstring Stretch</option>
                     </select>
+                    <div id="selectExerciseOptions" style="display:inline-flex">
+                        <select class="form-control form-control-lg" id="picksets" data-style="btn-primary" style="margin-top:0.5em;margin-right:0.5em;">
+                            <option selected disabled>Pick # of sets</option>
+                            <option value=1>1</option>
+                            <option value=2>2</option>
+                            <option value=3>3</option>
+                            <option value=4>4</option>
+                            <option value=5>5</option>
+                        </select>
+                        <select class="form-control form-control-lg" id="pickreps" data-style="btn-primary" style="margin-top:0.5em;margin-right:0.5em;">
+                            <option selected disabled>Pick # of reps</option>
+                            <option value=5>5</option>
+                            <option value=10>10</option>
+                        </select>
+                        <button type="submit" data-bs-toggle="button" id="submitExerciseButton" class="btn btn-primary" style="margin-top:0.5em">Start</button>
+                    </div>
                 </div>
             </div>
             <div class="card" style="margin-top:1em;margin-bottom:1em;">
@@ -69,8 +86,7 @@
             <div class="card shadow text-center">
                 <div class="card-body align-items-center">
                     <div class="text-xs font-weight-bold text-info text-uppercase"><i class="bi bi-heart"></i>
-                        Motivation</div>
-                    <p class="card-subtitle" style="padding:1.5em;" id="message">Welcome to Physifeedback!</p>
+                        Welcome to Physifeedback!</div>
                     <iframe id="video" allowfullscreen></iframe>
                 </div>
             </div>
@@ -121,6 +137,13 @@
                     <div class="text-xs font-weight-bold text-info text-uppercase"><i class="bi bi-arrow-repeat"></i>
                         Rep Count</div>
                     <p class="mb-0 mr-3 font-weight-bold text-gray-800 display-2" id="repcount">0</p>
+                </div>
+            </div>
+            <div class="card shadow text-center">
+                <div class="card-body">
+                    <div class="text-xs font-weight-bold text-info text-uppercase"><i class="bi bi-dumbbell"></i>
+                        Set Count</div>
+                    <p class="mb-0 mr-3 font-weight-bold text-gray-800 display-2" id="setcount">0</p>
                 </div>
             </div>
             <div class="card shadow text-center">
